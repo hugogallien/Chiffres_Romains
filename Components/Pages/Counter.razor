@@ -6,22 +6,22 @@
 <h1>Convertisseur en chiffres romains</h1>
 <div>
     <label>Entrer une valeur:</label>
-    <InputNumber @bind-Value="UserNumber" class="form-control" />
+    <InputNumber @bind-Value="inputNumber" class="form-control" />
 </div>
 <div class="mt-3">
-    <button class="btn btn-primary" @onclick="OnClick">Show Result</button>
+    <button class="btn btn-primary" @onclick="OnClick">Convertir</button>
 </div>
 
 <div class="mt-3">
-    <label>Result:</label>
-    <p><strong>@Result</strong></p>
+    <label>Résultat:</label>
+    <p><strong>@result</strong></p>
 </div>
 
 
 @code {
-    private long? UserNumber;
+    private long? inputNumber;
     private int countForParenthesis = 0;
-    private string? Result;
+    private string? result;
 
     public static readonly List<string> DictDix = new()
         {
@@ -40,19 +40,19 @@
 
     private void OnClick()
     {
-        if (UserNumber == null || UserNumber <= 0)
+        if (inputNumber == null || inputNumber <= 0)
         {
-            Result = "Error: Veuillez entrer un nombre supérieur à 0.";
+            result = "Error: Veuillez entrer un nombre supérieur à 0.";
             return;
         }
 
-        if (UserNumber > 4999999999)
+        if (inputNumber > 4999999999)
         {
-            Result = $"Error: Veuillez entrer un nombre inférieur ou égale à 4999999999.";
+            result = $"Error: Veuillez entrer un nombre inférieur ou égale à 4999999999.";
             return;
         }
 
-        long tempForParenthesis = (long)UserNumber;
+        long tempForParenthesis = (long)inputNumber;
 
         while (tempForParenthesis >= 5000)
         {
@@ -60,7 +60,7 @@
             countForParenthesis++;
         }
 
-        Result = RomanNumeralsConverter((long)UserNumber);
+        result = RomanNumeralsConverter((long)inputNumber);
         countForParenthesis = 0;
     }
 
