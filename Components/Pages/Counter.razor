@@ -1,0 +1,131 @@
+﻿@page "/counter"
+@rendermode InteractiveServer
+
+<PageTitle>Convertisseur en chiffres romains</PageTitle>
+
+<h1>Convertisseur en chiffres romains</h1>
+<div>
+    <label>Entrer une valeur:</label>
+    <InputNumber @bind-Value="UserNumber" class="form-control" />
+</div>
+<div class="mt-3">
+    <button class="btn btn-primary" @onclick="OnClick">Show Result</button>
+</div>
+
+<div class="mt-3">
+    <label>Result:</label>
+    <p><strong>@Result</strong></p>
+</div>
+
+
+@code {
+    private long? UserNumber;
+    private int countForParenthesis = 0;
+    private string? Result;
+
+    public static readonly List<string> DictDix = new()
+        {
+            { "I" },
+            { "X" },   
+            { "C" },
+            { "M" }
+        };
+
+    public static readonly List<string> DictCinq = new()
+    {
+            { "V" },
+            { "L" },
+            { "D" },
+        };
+
+    private void OnClick()
+    {
+        if (UserNumber == null || UserNumber <= 0)
+        {
+            Result = "Error: Veuillez entrer un nombre supérieur à 0.";
+            return;
+        }
+
+        if (UserNumber > 4999999999)
+        {
+            Result = $"Error: Veuillez entrer un nombre inférieur ou égale à 4999999999.";
+            return;
+        }
+
+        long tempForParenthesis = (long)UserNumber;
+
+        while (tempForParenthesis >= 5000)
+        {
+            tempForParenthesis = tempForParenthesis / 1000;
+            countForParenthesis++;
+        }
+
+        Result = RomanNumeralsConverter((long)UserNumber);
+        countForParenthesis = 0;
+    }
+
+    private string RomanNumeralsConverter(long currentNumber)
+    {
+        string result = "";
+        long rest = 0;
+
+        result = result + ConverterByTenth(currentNumber / 1000, 3);
+
+        rest = currentNumber % 1000;
+        result = result + ConverterByTenth(rest / 100, 2);
+
+        rest = rest % 100;
+        result = result + ConverterByTenth(rest / 10, 1);
+
+        rest = rest % 10;
+        result = result + ConverterByTenth(rest, 0);
+
+        return result;
+    }
+
+    private string BigThousandsHandler(long nbCurrentDix)
+    {
+        string result = "";
+        while (countForParenthesis > 0 && nbCurrentDix > 0)
+        {
+            if (nbCurrentDix < 5000)
+            {
+                result = result + string.Concat(Enumerable.Repeat('(', countForParenthesis)) + RomanNumeralsConverter(nbCurrentDix) + string.Concat(Enumerable.Repeat(')', countForParenthesis));
+            }
+            else
+            {
+                result = result + string.Concat(Enumerable.Repeat('(', countForParenthesis)) + RomanNumeralsConverter(nbCurrentDix / (((long)Math.Pow(1000, countForParenthesis - 1)))) + string.Concat(Enumerable.Repeat(')', countForParenthesis));
+            }
+
+            nbCurrentDix = nbCurrentDix - ((nbCurrentDix / (long)Math.Pow(1000, countForParenthesis - 1)) * (long)Math.Pow(1000, countForParenthesis - 1));
+            countForParenthesis--;
+        }
+
+        return result;
+    }
+
+    private string ConverterByTenth(long nbCurrentDix, int depth)
+    {
+        if (nbCurrentDix == 0)
+            return "";
+
+        if(depth == 3)
+        {
+            if (nbCurrentDix < 5)
+            {
+                return string.Concat(Enumerable.Repeat(DictDix[3], (int)nbCurrentDix % 5));
+            }
+            else
+            {
+                return BigThousandsHandler(nbCurrentDix);
+            }
+        }
+
+        if (nbCurrentDix == 9)
+            return  DictDix[depth] + DictDix[depth+1];
+        else if (nbCurrentDix == 4)
+            return DictDix[depth] + DictCinq[depth];
+        else
+            return (nbCurrentDix / 5 != 0 ? DictCinq[depth] : "") + string.Concat(Enumerable.Repeat(DictDix[depth], (int)nbCurrentDix % 5));
+    }
+}
